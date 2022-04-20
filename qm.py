@@ -236,13 +236,25 @@ def cubes(minterms, dont_cares):
             reshape.append(i[j])
     print(reshape);
     for i in range(len(reshape)):
-        for j in reshape:
-            pi_dict[i] = j
+        pi_dict[i] = reshape[i]
     print("----------------------------------------------------------------")
     print("these are the prime implicants")
     print("----------------------------------------------------------------")
     # print(pi)
     print(pi_dict)
+    print("----------------------------------------------------------------")
+    print("creating the PI table initialize all values to False" , end=" ")
+    print("size = (number of prime implicants) x (number of minterms)")
+    print("create an array of final checks")
+    print("----------------------------------------------------------------")
+    cols = len(pi_dict)
+    rows = len(set(minterms))
+    pi_table = [[False] * cols]*rows
+    final_checks = [False] * cols
+    # add the checks 
+    for i in range(rows):
+        for j in range(cols):
+            if 
     print("\n");
 
 if __name__ == "__main__":
