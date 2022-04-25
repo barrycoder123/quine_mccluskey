@@ -219,6 +219,7 @@ def cubes(minterms, dont_cares):
     print(one_cubes_dict);
 
     # prime implicant list
+    one_cube_counter = 0
     pi = []
     for i in zero_cubes_dict:
         if zero_cubes_dict[i] == False:
@@ -226,6 +227,7 @@ def cubes(minterms, dont_cares):
     for i in one_cubes_dict:
         if one_cubes_dict[i] == False:
             pi.append(i)
+            one_cube_counter +=1
     for i in match_arrays5, match_arrays6, match_arrays7:
         if i != []:
             pi.append(i)
@@ -247,14 +249,36 @@ def cubes(minterms, dont_cares):
     print("size = (number of prime implicants) x (number of minterms)")
     print("create an array of final checks")
     print("----------------------------------------------------------------")
-    cols = len(pi_dict)
-    rows = len(set(minterms))
-    pi_table = [[False] * cols]*rows
-    final_checks = [False] * cols
-    # add the checks 
+    rows = len(pi_dict)
+    cols = len(set(minterms))
+    pi_table = []
     for i in range(rows):
+        pi_table.append([])
         for j in range(cols):
-            if 
+            pi_table[i].append(False)
+
+    final_checks = [False] * cols
+    # add the checks
+    # for one-cubes the check is a bit different
+    # wanna check until the last two arr elements
+    check_arr = pi_dict[0][:(len(pi_dict)-2)]
+    for j in range(rows):
+        check_arr = pi_dict[j][:(len(pi_dict)-1)]
+        print(check_arr)
+        for i in range(len(minterms)):
+            if minterms[i] in check_arr:
+                pi_table[j][i] = True
+    print(pi_table)
+    essential_pi = {}
+    col_counter = 0;
+    for j in range(rows):
+        col_list = []
+        col_list.append(pi_table[j][col_counter])
+        if col_list.count(True) == 1:
+            print(col_list)
+            essential_pi[col_counter] = pi_dict[col_counter]
+        col_counter +=1
+    print(essential_pi)
     print("\n");
 
 if __name__ == "__main__":
