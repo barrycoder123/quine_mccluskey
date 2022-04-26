@@ -207,9 +207,6 @@ def cubes(minterms, dont_cares):
     for i in match_arrays, match_arrays2, match_arrays3, match_arrays4:
         one_cubes_dict = {tuple(i) : False for i in  match_arrays +
                 match_arrays2 + match_arrays3 + match_arrays4}
-
-    print(one_cubes_dict)
-
     print("----------------------------------------------------------------")
     print("these are the one cubes that have been checked off")
     print("----------------------------------------------------------------")
@@ -236,7 +233,13 @@ def cubes(minterms, dont_cares):
     for i in pi:
         for j in range(len(i)):
             reshape.append(i[j])
-    print(reshape);
+
+    for i in reshape:
+        if len(i) == 3:
+            del(i[-1])
+        if len(i) == 6:
+            del(i[-1])
+            del(i[-1])
     for i in range(len(reshape)):
         pi_dict[i] = reshape[i]
     print("----------------------------------------------------------------")
@@ -261,24 +264,86 @@ def cubes(minterms, dont_cares):
     # add the checks
     # for one-cubes the check is a bit different
     # wanna check until the last two arr elements
-    check_arr = pi_dict[0][:(len(pi_dict)-2)]
     for j in range(rows):
-        check_arr = pi_dict[j][:(len(pi_dict)-1)]
-        print(check_arr)
+        check_arr = pi_dict[j]
         for i in range(len(minterms)):
             if minterms[i] in check_arr:
                 pi_table[j][i] = True
+
+    print("----------------------------------------------------------------")
+    print("this is the PI table")
+    print("----------------------------------------------------------------")
     print(pi_table)
-    essential_pi = {}
-    col_counter = 0;
-    for j in range(rows):
-        col_list = []
-        col_list.append(pi_table[j][col_counter])
-        if col_list.count(True) == 1:
-            print(col_list)
-            essential_pi[col_counter] = pi_dict[col_counter]
-        col_counter +=1
+
+    minterm_list = minterms.copy();
+    unused = list(pi_dict.values()) # list of pis
+    for i in range(cols):
+        minterm_list[i] = [minterm_list[i], 0] # each minterm has been used 0 times
+    for i in range(cols):
+        for j in range(len(unused)):
+            for k in range(len(unused[j])):
+                if minterm_list[i][0] == unused[j][k]:
+                    minterm_list[i][1] +=1; # update counter
+                    minterm_list[i].append(j) # but which pi did use - this answers that
+    for i in range(len(minterm_list)):
+        # check if only used once add true flag
+        if minterm_list[i][1] == 1:
+            unused[minterm_list[i][2]].append(True)
+
+    print("----------------------------------------------------------------")
+    print("these are the essential prime implicants")
+    print("----------------------------------------------------------------")
+    essential_pi = []
+    for j in unused:
+        if True in j:
+            del j[-1]
+            essential_pi.append(j)
     print(essential_pi)
+        
+    # now write the binary of the essential PIs
+    for i in essential_pi:
+        for j in range(len(i)):
+            i[j] = to_binary(i[j])
+    
+    print(essential_pi)
+    # figure out the placements of the dont cares
+    misses_dict = []
+    for i in essential_pi:
+        # compare to the first one"
+        cmpr = i[0]
+        idx_miss = []
+        print(cmpr);
+        for j in range(1, len(i) - 1):
+            for k in range(4):
+                if i[j][k] != cmpr[k]:
+                    idx_miss.append(k)
+        print(idx_miss)
+        misses_dict.append(idx_miss)
+    print(misses_dict)
+    
+    dont_care = [ ]
+    for k in range(len(misses_dict)):
+        for i in essential_pi:
+            first_list = list(i[0])
+            for j in range(len(misses_dict[k])):
+                first_list[misses_dict[k][j]] = "X" 
+        stri = "".join(first_list)
+        dont_care.append(stri)
+        first_list = []
+    print(dont_care)
+
+    alphabet = ["A", "B", "C", "D"]
+    ans_list = [ ]
+    for i in range(len(dont_care)):
+        if dont_care[i] != "X":
+            res = [ ]
+            for j in range(4):
+                if dont_care[i][j] == "0":
+                    res.append(alphabet[j] + "'")
+                if dont_care[i][j] == "1":
+                    res.append(alphabet[j])
+            ans_list.append(res)
+    print(ans_list)
     print("\n");
 
 if __name__ == "__main__":
