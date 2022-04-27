@@ -298,52 +298,86 @@ def cubes(minterms, dont_cares):
         if True in j:
             del j[-1]
             essential_pi.append(j)
-    print(essential_pi)
         
     # now write the binary of the essential PIs
     for i in essential_pi:
         for j in range(len(i)):
             i[j] = to_binary(i[j])
     
-    print(essential_pi)
     # figure out the placements of the dont cares
     misses_dict = []
     for i in essential_pi:
         # compare to the first one"
         cmpr = i[0]
         idx_miss = []
-        print(cmpr);
         for j in range(1, len(i) - 1):
             for k in range(4):
                 if i[j][k] != cmpr[k]:
                     idx_miss.append(k)
-        print(idx_miss)
         misses_dict.append(idx_miss)
-    print(misses_dict)
+    binary = essential_pi.copy()
+    sop =[]
+    newsop = []
+    for i in range(len(binary)):
+        for j in range(len(binary[i])-1): 
+            for k in range(4):
+                sop.append('0')
+                sop[k] = binary[i][0][k]
+                if ((binary[i][0][k] != binary[i][j+1][k])):
+                    sop[k] = 'X'
+        del sop[4:]            
+        newsop.append( ''.join([str(x) for x in sop]) )
+        sop = []
+    print("Turning into Sum Of Products with don't cares", newsop)
     
-    dont_care = [ ]
-    for k in range(len(misses_dict)):
-        for i in essential_pi:
-            first_list = list(i[0])
-            for j in range(len(misses_dict[k])):
-                first_list[misses_dict[k][j]] = "X" 
-        stri = "".join(first_list)
-        dont_care.append(stri)
-        first_list = []
-    print(dont_care)
+
 
     alphabet = ["A", "B", "C", "D"]
     ans_list = [ ]
-    for i in range(len(dont_care)):
-        if dont_care[i] != "X":
+    for i in range(len(newsop)):
+        if newsop[i] != "X":
             res = [ ]
             for j in range(4):
-                if dont_care[i][j] == "0":
-                    res.append(alphabet[j] + "'")
-                if dont_care[i][j] == "1":
+                if newsop[i][j] == "0":
+                    res.append("~" + alphabet[j])
+                if newsop[i][j] == "1":
                     res.append(alphabet[j])
             ans_list.append(res)
-    print(ans_list)
+    
+    answers = []
+    for i in ans_list:
+        answers.append(''.join(i))
+
+    solution = ""
+    for i in range(len(answers)):
+        solution += answers[i] + " + "
+    print("the sum of products answer is f = ", solution[:-2])
+    #convert to pos
+    pos_ans = []
+    for i in ans_list:
+        to_add1, to_add2 = "", ""
+        lst = []
+        for j in range(len(i)):
+            if  "~" in i[j]:
+                to_add1 = i[j][1:] + " + "
+                lst.append(to_add1)
+            else:
+                to_add2 = " ~" + i[j] + " + "
+                lst.append(to_add2)
+            pos_ans.append(lst)
+
+    for i in pos_ans:
+        for j in pos_ans:
+            if set(i) == set(j):
+                pos_ans.remove(j)
+
+    pos_answers = []
+    for i in pos_ans:
+        pos_answers.append(''.join(i))
+    pos_solution = ""
+    for i in range(len(pos_answers)):
+        pos_solution += "(" + pos_answers[i][:-2] + ")"
+    print("the product of sums answers is F = ", pos_solution)
     print("\n");
 
 if __name__ == "__main__":
